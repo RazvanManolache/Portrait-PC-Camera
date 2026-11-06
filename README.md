@@ -71,6 +71,14 @@ See `THIRD-PARTY-NOTICES.txt` and bundled license files for dependencies.
 ## Release maintenance
 
 Use stable version tags such as `v0.3.0`. Update the project version and installer version together, build, and attach the installer and `SHA256SUMS.txt` to a published GitHub Release. Drafts and prereleases are excluded from app update checks. The updater repository is defined in `src/PortraitCamera/Updates.cs`.
+## GitHub builds
 
+Open **Actions → Windows camera installer → Run workflow**. Each successful run
+provides the Windows installer, SHA-256 checksum, source commit and offline
+self-test report under **Artifacts → PortraitCamera-Windows-installer**.
+Pushes and pull requests build automatically. Native x64/x86 components are built
+from pinned submodules and the .NET runtime is included.
 
-
+CI checks framing, bundled face detection, update parsing and camera enumeration
+without registering a camera or installing the application. Physical-camera,
+virtual-camera and Windows 11 installation checks still require a real machine.

@@ -9,6 +9,13 @@ foreach(NAME IN LISTS BASE_SOURCES)
 endforeach()
 file(COPY "${SOFTCAM}/softcamcore" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(GLOB CORE_FILES "${CMAKE_CURRENT_BINARY_DIR}/softcamcore/*.cpp")
+# CMake already defines _WINDLL for a shared library. Guard the upstream
+# definition in a generated copy without modifying the pinned submodule.
+file(READ "${SOFTCAM}/baseclasses/wxdebug.cpp" WXDEBUG)
+string(REPLACE "#define _WINDLL" "#ifndef _WINDLL\n#define _WINDLL\n#endif" WXDEBUG "${WXDEBUG}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/portrait_wxdebug.cpp" "${WXDEBUG}")
+list(REMOVE_ITEM BASE_FILES "${SOFTCAM}/baseclasses/wxdebug.cpp")
+list(APPEND BASE_FILES "${CMAKE_CURRENT_BINARY_DIR}/portrait_wxdebug.cpp")
 # Use generated branded copies; leave the upstream checkout pristine.
 file(READ "${SOFTCAM}/softcam/softcam.cpp" FILTER)
 string(REPLACE "0xaef3b972, 0x5fa5, 0x4647, 0x95, 0x71, 0x35, 0x8e, 0xb4, 0x72, 0xbc, 0x9e" "0x89084f72, 0x48e3, 0x4cc4, 0x93, 0xb5, 0x4f, 0x0e, 0x81, 0x55, 0xea, 0x71" FILTER "${FILTER}")

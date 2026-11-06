@@ -1,0 +1,42 @@
+name: Windows camera installer
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          submodules: recursive
+      - uses: actions/setup-dotnet@v6.1.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build both native architectures and installer
+        run: ./scripts/build.ps1
+      - name: Run offline camera self-tests
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $report = Join-Path $PWD 'dist/self-test'
+          $process = Start-Process -FilePath "$PWD/dist/app/PortraitCamera.exe" -ArgumentList @('--self-test', '--output', $report) -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -ne 0) { throw "Self-tests failed: $($process.ExitCode)" }
+          $result = Get-Content "$report/results.json" -Raw | ConvertFrom-Json
+          if (!$result.passed) { throw 'Self-test report did not pass.' }
+          $env:GITHUB_SHA | Set-Content dist/BUILD-COMMIT.txt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: PortraitCamera-Windows-installer
+          path: |
+            dist/*-Setup-*.exe
+            dist/SHA256SUMS.txt
+            dist/BUILD-COMMIT.txt
+            dist/self-test/
+          if-no-files-found: error
+          retention-days: 30
