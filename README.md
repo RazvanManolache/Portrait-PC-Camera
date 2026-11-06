@@ -13,6 +13,10 @@ Download the installer from [GitHub Releases](https://github.com/RazvanManolache
 
 Closing the window hides it to the tray. Right-click the tray icon to quit. By default an installed copy starts quietly with Windows; disable this in preferences if desired. The physical webcam is released shortly after both the preview and calling app stop using it. Pause releases the source and sends a privacy screen instead of retaining the last frame.
 
+Camera discovery and format checks do not activate capture or open the controls. Automatic popups require sustained delivered frames (at least 1.5 seconds and 20 frames); short probes remain quiet. Paused mode never opens the controls automatically, and the paused setting survives restarts. Hiding the controls during a stream keeps them hidden through short interruptions. Apps that continuously request video are treated as streaming, including background previews; the camera cannot determine whether a remote call is in progress.
+
+Local `activity.jsonl` diagnostics record stream transitions and reasons for opening the controls. Logs rotate at 256 KB and contain no images; they are not uploaded.
+
 Choose **360 × 640**, **720 × 1280 (default)**, or **1080 × 1920** portrait output at a target of **30 fps**. Changing size restarts the virtual camera; select it again in the receiving app if needed. A larger output does not add detail beyond the source webcam and portrait crop. A horizontal webcam is cropped, not stretched. If you physically mount the webcam sideways, choose its orientation in the framing preferences. Mirror affects the outgoing video as well as the preview.
 
 Startup is configured during installation, even if the app is not opened at the end of setup. Upgrades preserve an existing startup opt-out. The version is shown in the window. **Check updates** queries this repository's latest stable GitHub release. Automatic checks run on launch at most once per day and can be disabled in preferences. A newer release opens on GitHub when you choose **View update**; updates are never silently installed. GitHub receives the ordinary network request and app version, but no frames or camera settings.

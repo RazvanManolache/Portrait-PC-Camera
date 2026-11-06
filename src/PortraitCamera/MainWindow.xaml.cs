@@ -17,11 +17,14 @@ public partial class MainWindow : Window
     readonly DispatcherTimer saveTimer;
     Uri? releasePage;
     bool checkingUpdates;
-    public MainWindow()
+    public MainWindow(bool startPaused = false)
     {
         InitializeComponent();
         settings = Settings.Load();
         settings = settings with { OutputWidth = Settings.ValidWidth(settings.OutputWidth) };
+        if (startPaused) { settings = settings with { Paused = true }; settings.Save(); }
+        engine.Paused = settings.Paused;
+        PauseButton.Content = engine.Paused ? "Resume camera" : "Pause camera";
         VersionLabel.Text = Updates.VersionLabel;
         ResolutionPicker.SelectedIndex = settings.OutputWidth == 360 ? 0 : settings.OutputWidth == 1080 ? 2 : 1;
         UpdatesToggle.IsChecked = settings.CheckForUpdates;
@@ -54,7 +57,11 @@ public partial class MainWindow : Window
             TrackingLabel.Text = status.Paused ? "Your video is hidden" : !settings.AutoFrame ? "Manual framing" : status.People > 0 ? "Following you" : "Centered · looking for you";
             tray.Text = status.Paused ? "Portrait Camera · paused" : status.Connected ? "Portrait Camera · in use" : "Portrait Camera · ready";
         });
-        engine.CallStarted += () => Dispatcher.BeginInvoke(() => { if (settings.ShowOnCall && !quitting) ShowControls(false); });
+        engine.CallStarted += () => Dispatcher.BeginInvoke(() =>
+        {
+            if (!settings.ShowOnCall || engine.Paused || quitting) return;
+            if (!IsVisible) ShowControls(false);
+        });
         IsVisibleChanged += (_, _) => engine.Preview = IsVisible;
         Closing += OnClosing;
         SourceInitialized += (_, _) => { var value = 1; DwmSetWindowAttribute(new WindowInteropHelper(this).Handle, 20, ref value, sizeof(int)); };
@@ -69,6 +76,7 @@ public partial class MainWindow : Window
     public void ShowControls() => ShowControls(true);
     void ShowControls(bool activate)
     {
+        ActivityLog.Write(activate ? "controls-opened-manually" : "controls-opened-for-stream", new { paused = engine.Paused });
         ShowActivated = activate;
         Show(); WindowState = WindowState.Normal;
         if (activate) Activate();
@@ -153,7 +161,14 @@ public partial class MainWindow : Window
     }
     void RefreshClicked(object sender, RoutedEventArgs e) { RefreshCameras(); Apply(); }
     void PauseClicked(object sender, RoutedEventArgs e) => TogglePause();
-    void TogglePause() { engine.Paused = !engine.Paused; PauseButton.Content = engine.Paused ? "Resume camera" : "Pause camera"; }
+    void TogglePause()
+    {
+        engine.Paused = !engine.Paused;
+        settings = settings with { Paused = engine.Paused };
+        Apply(); settings.Save();
+        ActivityLog.Write(engine.Paused ? "paused" : "resumed");
+        PauseButton.Content = engine.Paused ? "Resume camera" : "Pause camera";
+    }
     void HideClicked(object sender, RoutedEventArgs e) => Hide();
     void OnClosing(object? sender, CancelEventArgs e) { if (!quitting) { e.Cancel = true; Hide(); } }
     internal void Quit()

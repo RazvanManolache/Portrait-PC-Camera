@@ -1,4 +1,4 @@
-#define AppVersion "0.3.0"
+#define AppVersion "0.3.1"
 #include "..\build\filter-metadata.iss"
 #define SourceDir "..\dist\app"
 #define CameraClsid "{{89084F72-48E3-4CC4-93B5-4F0E8155EA71}"
@@ -37,7 +37,9 @@ AppMutex=Local\PortraitCamera.App.89084f72
 UninstallDisplayName=Portrait Camera
 
 [Files]
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "PortraitCamera.MediaSource.dll,PortraitCamera.Native.dll,*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "PortraitCamera.MediaSource.dll,PortraitCamera.Native*.dll,*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceDir}\PortraitCamera.Native-{#AppVersion}.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\camera-x86\PortraitCamera.Native-{#AppVersion}.dll"; DestDir: "{app}\camera-x86"; Flags: ignoreversion
 Source: "{#SourceDir}\PortraitCamera.MediaSource.dll"; DestDir: "{app}"; DestName: "{#CameraSourceFile}"; Flags: ignoreversion
 
 [Icons]

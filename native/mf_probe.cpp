@@ -16,6 +16,7 @@ extern "C" __declspec(dllimport) HRESULT __cdecl pwStartSized(void**, int, int);
 extern "C" __declspec(dllimport) HRESULT __cdecl pwStartTransportSized(void**, int, int);
 extern "C" __declspec(dllimport) void __cdecl pwSend(void*, const BYTE*);
 extern "C" __declspec(dllimport) BOOL __cdecl pwConnected(void*);
+extern "C" __declspec(dllimport) unsigned long long __cdecl pwRequestedFrames(void*);
 extern "C" __declspec(dllimport) void __cdecl pwStop(void*);
 #define CHECK(expr) do { HRESULT checkHr = (expr); if (FAILED(checkHr)) { std::fprintf(stderr, "%s failed: 0x%08lx at line %d\n", #expr, checkHr, __LINE__); return checkHr; } } while(0)
 std::wstring Owner() {
@@ -79,6 +80,10 @@ HRESULT Run(bool installed, int testWidth, int testHeight) {
     }
     CHECK(reader->SetCurrentMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, nullptr, type.Get()));
     CHECK(reader->SetStreamSelection(MF_SOURCE_READER_FIRST_VIDEO_STREAM, TRUE));
+    Sleep(1800);
+    if (pwConnected(output) || pwRequestedFrames(output) != 0) {
+        std::fprintf(stderr, "Discovery unexpectedly counted as streaming\n"); return E_FAIL;
+    }
     ULONGLONG started = GetTickCount64();
     bool colorValid = false;
     for (int i = 0; i < 32; ++i) {
@@ -94,6 +99,7 @@ HRESULT Run(bool installed, int testWidth, int testHeight) {
     }
     auto elapsed = GetTickCount64() - started;
     bool connected = pwConnected(output) != FALSE;
+    if (pwRequestedFrames(output) < 32) return E_FAIL;
     std::fill(pixels.begin(), pixels.end(), 0); pwSend(output, pixels.data());
     bool black = false;
     for (int i = 0; i < 16; ++i) {

@@ -48,6 +48,7 @@ internal sealed class CameraEngine : IDisposable
             double previous = 0, lastUse = -10, retryAt = 0, lastReport = -1, lastPreview = -1, lastGood = 0;
             int frameCount = 0, reportFrames = 0, failedReads = 0, rotation = -1;
             double reportTime = 0;
+            var activity = new StreamActivity();
             bool wasConnected = false;
             string activeId = "", requestedId = "", message = "Ready for your next call";
             bool registered = windowsOutput != 0 || NativeCamera.List(true).Any(d => d.Name.StartsWith("Portrait Camera", StringComparison.Ordinal));
@@ -71,9 +72,15 @@ internal sealed class CameraEngine : IDisposable
                     }
                     slate.Create(Height, Width, MatType.CV_8UC3);
                     wasConnected = false;
+                    activity = new StreamActivity();
                 }
-                bool connected = NativeCamera.scIsConnected(output) || (windowsOutput != 0 && WindowsCameraOutput.pwConnected(windowsOutput));
-                if (connected && !wasConnected) CallStarted?.Invoke();
+                ulong legacyFrames = NativeCamera.pcRequestedFrames(output);
+                ulong windowsFrames = windowsOutput != 0 ? WindowsCameraOutput.pwRequestedFrames(windowsOutput) : 0;
+                bool notify = activity.Observe(now, legacyFrames, windowsFrames, Paused);
+                bool connected = activity.Active;
+                if (connected != wasConnected)
+                    ActivityLog.Write(connected ? "stream-started" : "stream-stopped", new { legacyFrames, windowsFrames, paused = Paused });
+                if (notify) CallStarted?.Invoke();
                 wasConnected = connected;
                 bool demand = (Preview || connected) && !Paused;
                 if (demand) lastUse = now;

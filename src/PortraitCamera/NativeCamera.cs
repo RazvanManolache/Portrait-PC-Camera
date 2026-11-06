@@ -26,6 +26,8 @@ internal static class NativeCamera
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static extern bool scIsConnected(nint camera);
+    [DllImport(Dll, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern ulong pcRequestedFrames(nint camera);
     [DllImport(Dll, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     static extern int pcListCameras(StringBuilder output, int capacity);
 

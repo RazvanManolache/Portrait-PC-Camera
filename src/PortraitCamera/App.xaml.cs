@@ -26,7 +26,12 @@ public partial class App : System.Windows.Application
         showRequest = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\PortraitCamera.Show.89084f72");
         quitRequest = new EventWaitHandle(false, EventResetMode.AutoReset, "Local\\PortraitCamera.Quit.89084f72");
         if (e.Args.Contains("--quit")) { if (!first) quitRequest.Set(); Shutdown(); return; }
-        if (!first) { showRequest.Set(); Shutdown(); return; }
+        if (!first)
+        {
+            if (!e.Args.Contains("--background")) showRequest.Set();
+            else ActivityLog.Write("duplicate-background-launch-ignored");
+            Shutdown(); return;
+        }
         DispatcherUnhandledException += (_, args) =>
         {
             Directory.CreateDirectory(Settings.Folder);
@@ -34,7 +39,7 @@ public partial class App : System.Windows.Application
             System.Windows.MessageBox.Show("Portrait Camera ran into a problem. Restart it from the Start menu.\n\n" + args.Exception.Message, "Portrait Camera");
             args.Handled = true; Shutdown(1);
         };
-        var window = new MainWindow(); MainWindow = window;
+        var window = new MainWindow(e.Args.Contains("--paused")); MainWindow = window;
         showWait = ThreadPool.RegisterWaitForSingleObject(showRequest, (_, _) => Dispatcher.BeginInvoke(window.ShowControls), null, -1, false);
         quitWait = ThreadPool.RegisterWaitForSingleObject(quitRequest, (_, _) => Dispatcher.BeginInvoke(window.Quit), null, -1, false);
         if (!e.Args.Contains("--background")) window.ShowControls();

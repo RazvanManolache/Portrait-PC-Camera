@@ -8,3 +8,4 @@ EXPORTS
   scSendFrame
   scIsConnected
   pcListCameras
+  pcRequestedFrames

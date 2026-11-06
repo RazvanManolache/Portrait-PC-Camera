@@ -20,6 +20,7 @@ struct Output {
     std::mutex lock;
     std::atomic<bool> stop{false};
     std::atomic<ULONGLONG> lastRequest{0};
+    std::atomic<ULONGLONG> requestedFrames{0};
     std::vector<std::thread> workers;
     HANDLE stopped = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     bool comInitialized = false;
@@ -83,10 +84,11 @@ void Serve(Output* output) {
         if (connected) while (!output->stop) {
             BYTE request = 0;
             if (!Transfer(output, pipe, &request, 1, false) || request != 1 || output->stop) break;
-            output->lastRequest = GetTickCount64();
             { std::lock_guard<std::mutex> guard(output->lock); std::memcpy(frame.data(), output->frame.data(), frame.size()); }
             PortraitFrameHeader header{PortraitMagic, static_cast<DWORD>(frame.size()), static_cast<DWORD>(output->width), static_cast<DWORD>(output->height)};
             if (!Transfer(output, pipe, &header, sizeof(header), true) || !Transfer(output, pipe, frame.data(), static_cast<DWORD>(frame.size()), true)) break;
+            output->lastRequest = GetTickCount64();
+            ++output->requestedFrames;
         }
         DisconnectNamedPipe(pipe); CloseHandle(pipe);
     }
@@ -149,3 +151,6 @@ extern "C" __declspec(dllexport) BOOL __cdecl pwConnected(void* handle) {
     return tick && GetTickCount64() - tick < 1200;
 }
 extern "C" __declspec(dllexport) void __cdecl pwStop(void* handle) { delete static_cast<Output*>(handle); }
+extern "C" __declspec(dllexport) unsigned long long __cdecl pwRequestedFrames(void* handle) {
+    return handle ? static_cast<Output*>(handle)->requestedFrames.load() : 0;
+}

@@ -1,4 +1,17 @@
-# v0.3.0 validation
+# v0.3.1 validation
+
+Tested on Windows 11 x64 on 2026-11-06.
+
+- Installed legacy camera held open for discovery for 2.2 seconds without reporting any delivered frames or active use; subsequent video delivery, upright colours, pause slate, and disconnect detection passed.
+- Direct and installed Windows Media Foundation tests passed at 360 × 640, 720 × 1280, and 1080 × 1920. Querying formats and selecting a stream for 1.8 seconds produced no video demand; actual frame reads produced demand and correct replacement frames.
+- Popup policy tests passed for discovery, brief probes, repeated isolated probes, sustained streams on both outputs, short interruptions, a separate later stream, and paused streams.
+- Installed upgrade completed without a reboot. The first installation attempt stopped mid-copy; rerunning the same installer completed successfully.
+- Duplicate background launch left the controls hidden. Restarting with only `--background` preserved pause, left physical capture off, and kept the window hidden. Windows startup still points to the installed app with `--background`.
+- Existing framing geometry, detector initialization, update-version comparisons, and resolution fallback checks passed.
+
+These checks use synthetic frames and do not make calls or establish Teams/WhatsApp phone-side compatibility. Continuous background video previews still qualify as streaming. Local evidence is excluded from the repository.
+
+## v0.3.0 validation
 
 Tested on Windows 11 x64 on 2026-11-06.
 

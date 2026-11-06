@@ -14,6 +14,8 @@ internal static class SelfTest
         var checks = new List<object>();
         try
         {
+            StreamActivityTests.Run();
+            checks.Add(new { test = "discovery-probes-streaming-pause-and-reconnect", passed = true });
             var current = new Version(0, 3, 0);
             Require(Updates.Parse("{\"tag_name\":\"v0.4.0\",\"draft\":false,\"prerelease\":false,\"html_url\":\"https://example.org\"}", current).ReleasePage?.Host == "github.com", "New releases use the configured GitHub repository");
             Require(Updates.Parse("{\"tag_name\":\"v0.3.0\",\"draft\":false,\"prerelease\":false}", current).ReleasePage == null, "Current version is not an update");
@@ -123,6 +125,14 @@ internal static class SelfTest
         try
         {
             Thread.Sleep(150);
+            var filterType = Type.GetTypeFromCLSID(new Guid("89084F72-48E3-4CC4-93B5-4F0E8155EA71"), true)!;
+            object discoveryOnly = Activator.CreateInstance(filterType)!;
+            try
+            {
+                Thread.Sleep(2200);
+                Require(NativeCamera.pcRequestedFrames(sender) == 0 && !NativeCamera.scIsConnected(sender), "Holding a legacy filter for discovery does not count as streaming");
+            }
+            finally { System.Runtime.InteropServices.Marshal.FinalReleaseComObject(discoveryOnly); }
             using (var receiver = new VideoCapture(device!.Index, VideoCaptureAPIs.DSHOW))
             using (var received = new Mat())
             {
@@ -132,6 +142,7 @@ internal static class SelfTest
                 var topLeft = received.At<Vec3b>(100, 100); var bottomRight = received.At<Vec3b>(1000, 600);
                 Require(topLeft.Item2 > 240 && topLeft.Item0 < 10 && bottomRight.Item0 > 240 && bottomRight.Item2 < 10, "Colors and orientation survive virtual transport");
                 Require(NativeCamera.scIsConnected(sender), "Consumer demand is detected");
+                Require(NativeCamera.pcRequestedFrames(sender) >= 10, "Only delivered legacy frames count as use");
                 Cv2.ImWrite(Path.Combine(folder, "virtual-camera-test.png"), received);
                 Volatile.Write(ref paused, 1);
                 for (int i = 0; i < 15; i++) receiver.Read(received);

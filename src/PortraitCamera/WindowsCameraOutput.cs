@@ -14,6 +14,8 @@ internal static class WindowsCameraOutput
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool pwConnected(nint handle);
     [DllImport("PortraitCamera.Windows.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong pwRequestedFrames(nint handle);
+    [DllImport("PortraitCamera.Windows.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void pwStop(nint handle);
     public static bool Installed()
     {

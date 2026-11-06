@@ -9,6 +9,7 @@ public record Settings
     public int OutputHeight => OutputWidth * 16 / 9;
     public static int ValidWidth(int width) => width is 360 or 720 or 1080 ? width : 720;
     public bool CheckForUpdates { get; init; } = true;
+    public bool Paused { get; init; }
     public string CameraId { get; init; } = "";
     public bool AutoFrame { get; init; } = true;
     public bool Mirror { get; init; }
