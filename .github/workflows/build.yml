@@ -59,6 +59,29 @@ jobs:
         BUILD_HIDDEN: 'false'
         BUILD_MISSING: error
       if: (success()) && success() && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.event_name != 'pull_request'
+    - name: Bound temporary release transfer storage
+      if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
+      uses: actions/github-script@v9
+      env:
+        TRANSFER_PATHS: |
+          dist/*-Setup-*.exe
+          dist/SHA256SUMS.txt
+          dist/BUILD-COMMIT.txt
+          dist/self-test/
+      with:
+        script: |
+          const fs = require('node:fs');
+          const finder = await glob.create(process.env.TRANSFER_PATHS);
+          const files = (await finder.glob()).filter(p => fs.statSync(p).isFile());
+          const bytes = files.reduce((n,p) => n + fs.statSync(p).size, 0) + 1024 * 1024;
+          const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {...context.repo, per_page: 100});
+          let retained = 0;
+          for (const artifact of artifacts) {
+            const run = (await github.rest.actions.getWorkflowRun({...context.repo, run_id: artifact.workflow_run.id})).data;
+            if (run.status === 'completed') await github.rest.actions.deleteArtifact({...context.repo, artifact_id: artifact.id});
+            else retained += artifact.size_in_bytes;
+          }
+          if (retained + bytes > 100 * 1024 * 1024) throw new Error('Temporary release handoff would exceed 100 MiB. Publish directly or split the installer.');
     - uses: actions/upload-artifact@v7.0.2
       with:
         name: PortraitCamera-Windows-installer
@@ -72,6 +95,7 @@ jobs:
       if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
     permissions:
       contents: write
+      actions: write
   release:
     name: Publish verified release
     needs: windows
