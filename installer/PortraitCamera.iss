@@ -1,4 +1,4 @@
-#define AppVersion "0.3.1"
+#define AppVersion "0.3.2"
 #include "..\build\filter-metadata.iss"
 #define SourceDir "..\dist\app"
 #define CameraClsid "{{89084F72-48E3-4CC4-93B5-4F0E8155EA71}"

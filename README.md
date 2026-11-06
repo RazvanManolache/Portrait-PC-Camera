@@ -70,7 +70,9 @@ See `THIRD-PARTY-NOTICES.txt` and bundled license files for dependencies.
 
 ## Release maintenance
 
-Use stable version tags such as `v0.3.0`. Update the project version and installer version together, build, and attach the installer and `SHA256SUMS.txt` to a published GitHub Release. Drafts and prereleases are excluded from app update checks. The updater repository is defined in `src/PortraitCamera/Updates.cs`.
+Update the project and installer versions together, add `docs/releases/vVERSION.md`, commit, and push a matching stable tag such as `v0.3.2`. The Windows camera installer workflow builds both native architectures and the self-contained installer, runs offline self-tests, then publishes the installer, `SHA256SUMS.txt`, and `BUILD-COMMIT.txt` through a separate release job. It checks the tag, source commit, test results, and uploaded asset digests before publishing. Pull requests and ordinary branch pushes only build artifacts; release write permission is limited to the publishing job.
+
+An interrupted draft release can be retried from Actions using the existing version tag and the **publish** option. Published assets are never replaced; use a new version for changes. Drafts and prereleases are excluded from app update checks. The updater repository is defined in `src/PortraitCamera/Updates.cs`.
 ## GitHub builds
 
 Open **Actions → Windows camera installer → Run workflow**. Each successful run

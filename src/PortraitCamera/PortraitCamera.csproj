@@ -11,7 +11,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>../../assets/portrait.ico</ApplicationIcon>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <Product>Portrait Camera</Product>
     <Description>A simple portrait webcam for desktop calls.</Description>
   </PropertyGroup>
