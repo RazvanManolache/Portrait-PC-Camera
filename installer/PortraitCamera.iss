@@ -67,7 +67,6 @@ Root: HKLM32; Subkey: "Software\Classes\CLSID\{#CameraClsid}\InprocServer32"; Va
 Root: HKLM32; Subkey: "Software\Classes\CLSID\{#CameraCategory}\Instance\{#CameraClsid}"; ValueType: string; ValueName: "CLSID"; ValueData: "{#CameraClsid}"; Flags: uninsdeletekey
 Root: HKLM32; Subkey: "Software\Classes\CLSID\{#CameraCategory}\Instance\{#CameraClsid}"; ValueType: string; ValueName: "FriendlyName"; ValueData: "Portrait Camera (Legacy)"
 Root: HKLM32; Subkey: "Software\Classes\CLSID\{#CameraCategory}\Instance\{#CameraClsid}"; ValueType: binary; ValueName: "FilterData"; ValueData: "{#CameraFilterData}"
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "PortraitCamera"; Flags: uninsdeletevalue
 
 [Run]
 Filename: "{app}\PortraitCamera.Registration.exe"; Parameters: "--refresh"; Flags: runhidden waituntilterminated
@@ -99,3 +98,24 @@ begin
 end;
 
 
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  Users: TArrayOfString;
+  I: Integer;
+  RunKey, Command, Expected: String;
+begin
+  if CurUninstallStep <> usUninstall then Exit;
+  { Elevation may use a different account from the camera user. Clean only
+    loaded profiles whose startup value points to this exact installation.
+    Do not mount offline hives or remove another installation's startup entry. }
+  Expected := '"' + ExpandConstant('{app}\PortraitCamera.exe') + '" --background';
+  if RegGetSubkeyNames(HKEY_USERS, '', Users) then
+    for I := 0 to GetArrayLength(Users) - 1 do begin
+      RunKey := Users[I] + '\Software\Microsoft\Windows\CurrentVersion\Run';
+      if RegQueryStringValue(HKEY_USERS, RunKey, 'PortraitCamera', Command) then
+        if CompareText(Command, Expected) = 0 then
+          if not RegDeleteValue(HKEY_USERS, RunKey, 'PortraitCamera') then
+            Log('Could not remove Portrait Camera startup entry: ' + RunKey);
+    end;
+end;
