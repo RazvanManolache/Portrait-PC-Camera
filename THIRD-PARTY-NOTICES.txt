@@ -1,0 +1,41 @@
+Portrait Camera third-party components
+
+Softcam by tshino (MIT)
+https://github.com/tshino/softcam
+Pinned revision: 6f5d8f9b5f7dc37a86a119b881bc75e1860fb3ec
+The native build changes the camera name, COM class ID, and shared-memory names.
+Source remains in third_party/softcam; generated adaptations are in build folders.
+Full license: licenses/Softcam.txt (source: third_party/softcam/LICENSE).
+Softcam includes Microsoft DirectShow Base Classes (MIT), whose copyright
+notices remain in the vendored source files.
+
+OpenCvSharp 4.13.0.20260627 by shimat (Apache-2.0)
+https://github.com/shimat/opencvsharp
+OpenCV 4.13 (Apache-2.0) and third-party components in its official Windows build
+https://github.com/opencv/opencv
+Full licenses and notices are included in licenses/.
+
+YuNet face detection model, face_detection_yunet_2023mar.onnx (MIT)
+https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet
+Full license: licenses/LICENSE-YuNet.txt.
+
+.NET / Windows Desktop runtime (MIT and third-party notices)
+https://github.com/dotnet/runtime
+https://github.com/dotnet/wpf
+Included by .NET self-contained publishing. License files are in licenses/.
+
+The application uses Windows system APIs. No online inference, telemetry,
+account service, or runtime model downloads are implemented. Optional version
+checks contact GitHub Releases.
+
+VCamSample by Simon Mourier (MIT)
+https://github.com/smourier/VCamSample
+Pinned revision: 58b6d4b0e0c2c97fdffd66d23e7c8da6b89f570d
+Adapted activation, source, and stream code is in native/mf. Portrait Camera
+replaces the frame generator and changes stream formats, allocation, and activation.
+Full license: licenses/VCamSample.txt; also preserved in native/mf/LICENSE.
+
+Windows Implementation Libraries by Microsoft (MIT)
+https://github.com/microsoft/wil
+Pinned revision: 666d4a420838b12163b51efa18156f3ae93cb5da
+Full license: licenses/WIL.txt.

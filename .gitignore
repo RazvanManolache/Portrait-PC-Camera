@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+build/
+dist/
+artifacts/
+*.user
+.vs/
+third_party/softcam/.git/
+third_party/softcam/dist/
+third_party/softcam/x64/
+third_party/softcam/Win32/
+third_party/VCamSample/

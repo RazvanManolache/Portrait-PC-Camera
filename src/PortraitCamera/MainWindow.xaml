@@ -1,0 +1,38 @@
+<Window x:Class="PortraitCamera.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Portrait Camera" Width="382" Height="620" MinWidth="360" MinHeight="520" Background="{StaticResource BackgroundBrush}" Foreground="#F0F3F8" WindowStartupLocation="CenterScreen" Icon="portrait.ico">
+ <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+ <StackPanel Margin="16,12,16,14">
+  <Grid><StackPanel Orientation="Horizontal"><TextBlock Text="Portrait Camera" FontSize="19" FontWeight="SemiBold"/><TextBlock x:Name="VersionLabel" Margin="8,6,0,0" Foreground="#99A9BF" FontSize="10"/></StackPanel><Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#213D37" CornerRadius="10" Padding="9,4" Margin="0,6,0,0"><TextBlock x:Name="LiveBadge" Text="READY" Foreground="#68E0C1" FontSize="10" FontWeight="Bold"/></Border></Grid>
+  <Border Background="#0B1018" CornerRadius="12" Margin="0,10,0,10" Padding="8">
+   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Border CornerRadius="8" ClipToBounds="True" BorderThickness="1" BorderBrush="#354256" Width="90" Height="160"><Image x:Name="PreviewImage" Stretch="UniformToFill"/></Border>
+    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+     <TextBlock Text="PORTRAIT OUTPUT" FontSize="10" Foreground="#91A3BA" Margin="0,0,0,6"/>
+     <ComboBox x:Name="ResolutionPicker" SelectionChanged="ResolutionChanged" AutomationProperties.Name="Output resolution"><ComboBoxItem Content="360 × 640 · Small"/><ComboBoxItem Content="720 × 1280 · HD"/><ComboBoxItem Content="1080 × 1920 · Full HD"/></ComboBox>
+     <TextBlock Text="9:16 · 30 fps" Foreground="#68E0C1" FontSize="11" Margin="0,8,0,7"/>
+     <TextBlock Text="Changing size restarts the camera. Re-select it in your calling app." Foreground="#91A3BA" TextWrapping="Wrap" FontSize="10" Margin="0,0,0,9"/>
+     <TextBlock x:Name="TrackingLabel" Text="Finding your frame…" Foreground="#BAC7D7" TextWrapping="Wrap" FontSize="12"/>
+    </StackPanel>
+   </Grid>
+  </Border>
+  <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="48"/></Grid.ColumnDefinitions><ComboBox x:Name="CameraPicker" SelectionChanged="CameraChanged" AutomationProperties.Name="Camera"/><Button Grid.Column="1" Content="↻" Margin="7,0,0,0" Padding="6" ToolTip="Refresh cameras" Click="RefreshClicked"/></Grid>
+  <Border Background="{StaticResource CardBrush}" CornerRadius="10" Padding="10,3" Margin="0,9,0,9"><StackPanel>
+   <CheckBox x:Name="AutoFrameToggle" Content="Keep me in frame" Checked="OptionsChanged" Unchecked="OptionsChanged"/>
+   <CheckBox x:Name="MirrorToggle" Content="Mirror my video" Checked="OptionsChanged" Unchecked="OptionsChanged"/>
+  </StackPanel></Border>
+  <Expander Header="Framing &amp; preferences" Margin="0,0,0,12"><StackPanel Margin="0,12,0,0">
+   <TextBlock Text="Camera orientation" FontSize="12"/><ComboBox x:Name="RotationPicker" SelectionChanged="OptionsChanged" Margin="0,7,0,10"><ComboBoxItem Content="Upright"/><ComboBoxItem Content="Rotate right 90°"/><ComboBoxItem Content="Upside down"/><ComboBoxItem Content="Rotate left 90°"/></ComboBox>
+   <TextBlock Text="Zoom" FontSize="12"/><Slider x:Name="ZoomSlider" Minimum="1" Maximum="2" Value="1" ValueChanged="OptionsChanged" AutomationProperties.Name="Zoom"/>
+   <TextBlock Text="Manual position · turn auto framing off to adjust" FontSize="11" Foreground="#8D9EB5"/><Slider x:Name="PositionSlider" Minimum="0" Maximum="1" Value=".5" ValueChanged="OptionsChanged" AutomationProperties.Name="Manual crop position"/>
+   <CheckBox x:Name="PopupToggle" Content="Show controls when camera is used" Checked="OptionsChanged" Unchecked="OptionsChanged"/>
+   <CheckBox x:Name="TopToggle" Content="Keep controls on top" Checked="OptionsChanged" Unchecked="OptionsChanged"/>
+   <CheckBox x:Name="StartupToggle" Content="Start with Windows" Checked="OptionsChanged" Unchecked="OptionsChanged"/>
+   <CheckBox x:Name="UpdatesToggle" Content="Check for updates automatically" Checked="OptionsChanged" Unchecked="OptionsChanged"/>
+  </StackPanel></Expander>
+  <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="12"/><ColumnDefinition/></Grid.ColumnDefinitions><Button x:Name="PauseButton" Content="Pause camera" Click="PauseClicked"/><Button Grid.Column="2" Content="Hide to tray" Background="#68E0C1" Foreground="#12241F" FontWeight="SemiBold" Click="HideClicked"/></Grid>
+  <TextBlock x:Name="StatusLabel" Text="Getting your camera ready…" Foreground="#9AAAC0" TextWrapping="Wrap" FontSize="11" Margin="0,12,0,10"/>
+  <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="UpdateLabel" Text="Updates from GitHub" Foreground="#91A3BA" TextWrapping="Wrap" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0"/><Button x:Name="UpdateButton" Grid.Column="1" Content="Check updates" Padding="9,6" FontSize="10" Click="UpdateClicked"/></Grid>
+ </StackPanel>
+ </ScrollViewer>
+</Window>
+
